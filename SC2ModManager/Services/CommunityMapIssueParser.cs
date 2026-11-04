@@ -30,7 +30,9 @@ public static class CommunityMapIssueParser
         if (!uri.AbsolutePath.EndsWith(fileType, StringComparison.OrdinalIgnoreCase)) return false;
 
         fields.TryGetValue("Map or game version", out var version);
-        fields.TryGetValue("SHA-256 (optional)", out var sha256);
+        if (!fields.TryGetValue("SHA-256 (generated automatically)", out var sha256))
+            fields.TryGetValue("SHA-256 (optional)", out sha256);
+        if (string.Equals(sha256, "_No response_", StringComparison.OrdinalIgnoreCase)) sha256 = string.Empty;
         map = new Map
         {
             ID = $"community-{issueNumber}",

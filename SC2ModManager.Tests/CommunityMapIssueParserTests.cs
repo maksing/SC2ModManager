@@ -30,7 +30,7 @@ https://example.com/desert-arena.zip
 
 2v2 community map
 
-### SHA-256 (optional)
+### SHA-256 (generated automatically)
 
 abc123
 """;
