@@ -78,7 +78,9 @@ abc123
     [Fact]
     public void ParsesMultipleScenarioPaths()
     {
-        var body = Body.Replace("/maps/desert_arena/desert_arena_scenario.lua", "/maps/desert_arena/desert_arena_scenario.lua\n/maps/desert_arena/desert_arena_preview.lua");
+        var body = Body
+            .Replace("### Scenario File Path", "### Scenario File Paths")
+            .Replace("/maps/desert_arena/desert_arena_scenario.lua", "/maps/desert_arena/desert_arena_scenario.lua;/maps/desert_arena/desert_arena_preview.lua");
         Assert.True(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out var map));
         Assert.Contains("desert_arena_scenario.lua", map.ScenarioFilePath);
         Assert.Contains("desert_arena_preview.lua", map.ScenarioFilePath);
