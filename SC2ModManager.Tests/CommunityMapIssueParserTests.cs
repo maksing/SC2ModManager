@@ -138,6 +138,15 @@ abc123
     }
 
     [Fact]
+    public void ParsesImageFromHtmlImgTagAndUsesDateOnlyForLastUpdated()
+    {
+        var body = Body.Replace("### SHA-256 (generated automatically)", "### Map image\n\n<img width=\"1024\" height=\"1024\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/06602651-6702-46d4-b2ed-b352511b3ba1\" />\n\n### SHA-256 (generated automatically)");
+        Assert.True(CommunityMapIssueParser.TryParse(body, 10, "", "verified", out var map));
+        Assert.Equal("https://github.com/user-attachments/assets/06602651-6702-46d4-b2ed-b352511b3ba1", map.MapPictureUrl);
+        Assert.Matches(@"^\d{2}\.\d{2}\.\d{4}$", map.LastUpdated);
+    }
+
+    [Fact]
     public void ParsesIssueWithoutFormVersionCheckbox()
     {
         Assert.True(CommunityMapIssueParser.TryParse(Body.Replace("### Form version\n\n- [x] I am submitting through the SC2CommunityMaps form v1.\n\n", ""), 1, "", "verified", out _));

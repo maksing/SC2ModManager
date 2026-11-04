@@ -73,7 +73,7 @@ public static class CommunityMapIssueParser
             SourceIssueUrl = issueUrl ?? string.Empty,
             ModerationStatus = status,
             Sha256 = sha256 ?? string.Empty,
-            LastUpdated = DateTime.UtcNow.ToString("O")
+            LastUpdated = DateTime.UtcNow.ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture)
         };
         if (string.IsNullOrWhiteSpace(map.FileName) || !map.FileName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase)) return false;
         return true;
@@ -89,9 +89,13 @@ public static class CommunityMapIssueParser
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
 
         var markdown = Regex.Match(value, @"!\[[^\]]*\]\((https://[^)\s]+)", RegexOptions.IgnoreCase);
+        // GitHub stores larger dropped images as an <img src="..."> tag instead of markdown.
+        var htmlTag = Regex.Match(value, @"<img\b[^>]*?\bsrc\s*=\s*[""'](https://[^""']+)[""']", RegexOptions.IgnoreCase);
         var candidate = markdown.Success
             ? markdown.Groups[1].Value
-            : Regex.Match(value, @"https://[^\s)]+", RegexOptions.IgnoreCase).Value;
+            : htmlTag.Success
+                ? htmlTag.Groups[1].Value
+                : Regex.Match(value, @"https://[^\s)""'<>]+", RegexOptions.IgnoreCase).Value;
 
         return Uri.TryCreate(candidate, UriKind.Absolute, out var uri) &&
                string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
