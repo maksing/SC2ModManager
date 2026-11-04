@@ -25,9 +25,10 @@ public static class CommunityMapIssueParser
             !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        var fileType = fields.TryGetValue("File type", out var type) ? type : string.Empty;
+        // The form no longer has a File type field; older issues still do, so it is only checked when present.
+        var fileType = Path.GetExtension(uri.AbsolutePath);
         if (!fileType.Equals(".scd", StringComparison.OrdinalIgnoreCase) && !fileType.Equals(".zip", StringComparison.OrdinalIgnoreCase)) return false;
-        if (!uri.AbsolutePath.EndsWith(fileType, StringComparison.OrdinalIgnoreCase)) return false;
+        if (fields.TryGetValue("File type", out var declaredType) && !declaredType.Equals(fileType, StringComparison.OrdinalIgnoreCase)) return false;
 
         var version = Optional(fields, "Map or mappack version", string.Empty);
         if (!Regex.IsMatch(version, @"^[0-9]+\.[0-9]+\.[0-9]+$")) return false;

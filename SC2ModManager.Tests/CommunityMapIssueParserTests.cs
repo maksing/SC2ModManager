@@ -5,7 +5,8 @@ namespace SC2ModManager.Tests;
 
 public class CommunityMapIssueParserTests
 {
-    private const string Body = """
+    // Normalized so the replacements below work whichever line endings the file is checked out with.
+    private static readonly string Body = """
 ### Form version
 
 - [x] I am submitting through the SC2CommunityMaps form v1.
@@ -41,7 +42,7 @@ https://example.com/desert-arena.zip
 ### SHA-256 (generated automatically)
 
 abc123
-""";
+""".ReplaceLineEndings("\n");
 
     [Fact]
     public void ParsesValidIssueForm()
@@ -84,6 +85,25 @@ abc123
         Assert.True(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out var map));
         Assert.Contains("desert_arena_scenario.lua", map.ScenarioFilePath);
         Assert.Contains("desert_arena_preview.lua", map.ScenarioFilePath);
+    }
+
+    [Fact]
+    public void ParsesIssueWithoutFileTypeAndWithScenarioPathsOnSeparateLines()
+    {
+        var body = Body
+            .Replace("### File type\n\n.zip\n\n", "")
+            .Replace("### Scenario File Path", "### Scenario File Paths")
+            .Replace("/maps/desert_arena/desert_arena_scenario.lua", "/maps/desert_arena/desert_arena_scenario.lua\n/maps/desert_arena/desert_arena_preview.lua");
+        Assert.True(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out var map));
+        Assert.Equal("desert-arena.zip", map.FileName);
+        Assert.Equal(2, map.ScenarioFilePath.Split(System.Environment.NewLine).Length);
+    }
+
+    [Fact]
+    public void RejectsFileTypeThatDoesNotMatchUrl()
+    {
+        var body = Body.Replace("### File type\n\n.zip", "### File type\n\n.scd");
+        Assert.False(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out _));
     }
 
     [Fact]
