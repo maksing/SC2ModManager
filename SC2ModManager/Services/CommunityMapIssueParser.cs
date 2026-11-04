@@ -29,7 +29,8 @@ public static class CommunityMapIssueParser
         if (!fileType.Equals(".scd", StringComparison.OrdinalIgnoreCase) && !fileType.Equals(".zip", StringComparison.OrdinalIgnoreCase)) return false;
         if (!uri.AbsolutePath.EndsWith(fileType, StringComparison.OrdinalIgnoreCase)) return false;
 
-        var version = Optional(fields, "Map or game version", "Unknown");
+        var version = Optional(fields, "Map or mappack version", string.Empty);
+        if (!Regex.IsMatch(version, @"^[0-9]+\.[0-9]+\.[0-9]+$")) return false;
         var description = Optional(fields, "Description", "No description available.");
         var players = Optional(fields, "Players", "Unknown");
         var style = Optional(fields, "Style", "Unknown");

@@ -26,9 +26,9 @@ https://example.com/desert-arena.zip
 
 .zip
 
-### Map or game version
+### Map or mappack version
 
-1.0
+1.0.0
 
 ### Description
 
@@ -60,6 +60,16 @@ abc123
         Assert.False(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out _));
     }
 
+    [Theory]
+    [InlineData("1.0")]
+    [InlineData("1.0.0.1")]
+    [InlineData("v1.0.0")]
+    public void RejectsInvalidVersion(string version)
+    {
+        var body = Body.Replace("1.0.0", version);
+        Assert.False(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out _));
+    }
+
     [Fact]
     public void RejectsMissingRequiredField()
     {
@@ -70,12 +80,12 @@ abc123
     public void OptionalOfficialMetadataAndImageAreParsed()
     {
         var body = Body
-            .Replace("### Map or game version\n\n1.0", "### Map or game version\n\n_No response_")
+            .Replace("### Map or mappack version\n\n1.0.0", "### Map or mappack version\n\n1.0.0")
             .Replace("### Description\n\n2v2 community map", "### Description\n\n_No response_\n\n### Players\n\n2 Players\n\n### Style\n\nTeam\n\n### Size\n\nLarge\n\n### Map image\n\n![Map preview](https://github.com/user-attachments/assets/map-preview)")
             .Replace("### SHA-256 (generated automatically)", "### Tags\n\n2 Players, Team\n\n### SHA-256 (generated automatically)");
 
         Assert.True(CommunityMapIssueParser.TryParse(body, 7, "", "verified", out var map));
-        Assert.Equal("Unknown", map.Version);
+        Assert.Equal("1.0.0", map.Version);
         Assert.Equal("No description available.", map.Description);
         Assert.Equal("2 Players", map.PlayerCount);
         Assert.Equal("Team", map.MapTeamStyle);
