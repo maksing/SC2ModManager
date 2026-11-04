@@ -1704,6 +1704,14 @@ namespace SC2ModManager.ViewModels
         public async Task DownloadCommunityMapAsync(Map map)
         {
             if (map == null) return;
+            // Migrate entries written by the first community-map build, which used
+            // community-{issue}.scd instead of the actual filename from the URL.
+            if (string.Equals(map.CatalogSource, "community", StringComparison.OrdinalIgnoreCase) &&
+                Uri.TryCreate(map.DownloadURL, UriKind.Absolute, out var downloadUri))
+            {
+                var sourceFileName = Path.GetFileName(downloadUri.AbsolutePath);
+                if (!string.IsNullOrWhiteSpace(sourceFileName)) map.FileName = sourceFileName;
+            }
             if (File.Exists(map.ModFilePath))
             {
                 map.IsDownloaded = true;
