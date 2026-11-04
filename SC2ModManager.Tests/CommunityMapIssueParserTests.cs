@@ -138,8 +138,14 @@ abc123
     }
 
     [Fact]
-    public void RejectsBlankIssueWithoutFormMarker()
+    public void ParsesIssueWithoutFormVersionCheckbox()
     {
-        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("### Form version\n\n- [x] I am submitting through the SC2CommunityMaps form v1.\n\n", ""), 1, "", "verified", out _));
+        Assert.True(CommunityMapIssueParser.TryParse(Body.Replace("### Form version\n\n- [x] I am submitting through the SC2CommunityMaps form v1.\n\n", ""), 1, "", "verified", out _));
+    }
+
+    [Fact]
+    public void RejectsFreeTextIssueThatIsNotTheForm()
+    {
+        Assert.False(CommunityMapIssueParser.TryParse("Please add my map, it is great.", 1, "", "verified", out _));
     }
 }

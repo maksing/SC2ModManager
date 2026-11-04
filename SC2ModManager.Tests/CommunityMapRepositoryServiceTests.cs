@@ -17,7 +17,7 @@ public class CommunityMapRepositoryServiceTests
         var handler = new StubHandler(_ => """
         [
           {"number":99,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/issues/99","body":"### Form version\n\n- [x] I am submitting through the SC2CommunityMaps form v1.\n\n### Map name\n\nMap One\n\n### Author\n\nA\n\n### Download URL\n\nhttps://example.com/map.scd\n\n### File type\n\n.scd\n\n### Map or mappack version\n\n1.0.0\n\n### Scenario File Path\n\n/maps/map_one/map_one_scenario.lua\n\n### Description\n\nTest\n\n### SHA-256 (generated automatically)\n\n0000000000000000000000000000000000000000000000000000000000000000"},
-          {"number":1,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/issues/1","body":"### Map name\n\nMap One\n\n### Author\n\nA\n\n### Download URL\n\nhttps://example.com/map.scd\n\n### File type\n\n.scd\n\n### Map or mappack version\n\n1.0.0\n\n### Scenario File Path\n\n/maps/map_one/map_one_scenario.lua\n\n### Description\n\nTest"},
+          {"number":1,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/issues/1","body":"Please add my map, it is great."},
           {"number":2,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/pull/2","body":"ignored","pull_request":{}}
         ]
         """);
