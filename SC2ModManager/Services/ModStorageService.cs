@@ -36,6 +36,7 @@ namespace SC2ModManager.Services
         private readonly string genericModsStatePath;
 
         private readonly HttpClient httpClient = new HttpClient();
+        private readonly MapCatalogCache officialMapsCache = new MapCatalogCache("official_maps_cache.json");
 
         private static readonly HashSet<string> OriginalGameFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -407,13 +408,23 @@ namespace SC2ModManager.Services
         // ================= MAPS: GITHUB =================
 
         /// <summary>
-        ///     Gets the json file from github and deserializes it into a list of maps that are available for download
+        ///     Gets the official maps available for download: the verified and promoted issues of the community
+        ///     maps repository, without the hidden ones. Falls back to the last saved copy when GitHub can't be reached.
         /// </summary>
         public async Task<List<Map>> GetDownloadableMapsAsync()
         {
-            string json = await httpClient.GetStringAsync(Globals.MapsListUrl);
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            return JsonSerializer.Deserialize<List<Map>>(json, options) ?? new List<Map>();
+            try
+            {
+                var maps = await CommunityMapRepositoryService.Shared.GetOfficialAsync();
+                await officialMapsCache.SaveAsync(maps);
+                return maps;
+            }
+            catch
+            {
+                var cached = await officialMapsCache.LoadAsync();
+                if (cached.Count == 0) throw;
+                return cached;
+            }
         }
 
 

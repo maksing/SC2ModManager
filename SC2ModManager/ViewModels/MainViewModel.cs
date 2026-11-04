@@ -50,7 +50,7 @@ namespace SC2ModManager.ViewModels
 
         private readonly ModRepositoryService repositoryService = new();
         private readonly ModStorageService storageService = new();
-        private readonly CommunityMapRepositoryService communityMapRepository = new();
+        private readonly CommunityMapRepositoryService communityMapRepository = CommunityMapRepositoryService.Shared;
         private readonly MapCatalogCache communityMapCache = new();
         private readonly GamedataService gamedataService = new();
 

@@ -40,8 +40,7 @@ namespace SC2ModManager.Services
         {
             try
             {
-                var json = await httpClient.GetStringAsync(mapsUrl);
-                return JsonSerializer.Deserialize<List<Map>>(json) ?? new List<Map>();
+                return await CommunityMapRepositoryService.Shared.GetOfficialAsync();
             }
             catch (Exception ex)
             {

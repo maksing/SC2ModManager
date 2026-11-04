@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SC2ModManager.Services;
@@ -27,6 +28,51 @@ public class CommunityMapRepositoryServiceTests
 
         var map = Assert.Single(maps);
         Assert.Equal(99, map.SourceIssueNumber);
+    }
+
+    private static string IssueJson(int number, params string[] labels)
+    {
+        var body = string.Join("\n\n", "### Map name", $"Map {number}", "### Author", "A", "### Download URL", $"https://example.com/map{number}.scd", "### Map or mappack version", "1.0.0", "### Scenario File Paths", $"/maps/m{number}/m{number}_scenario.lua");
+        return System.Text.Json.JsonSerializer.Serialize(new
+        {
+            number,
+            html_url = $"https://github.com/maksing/SupCom2-Community-Maps/issues/{number}",
+            body,
+            labels = labels.Select(l => new { name = l }).ToArray()
+        });
+    }
+
+    private static CommunityMapRepositoryService ServiceWith(params string[] issues) =>
+        new(new HttpClient(new StubHandler(_ => "[" + string.Join(",", issues) + "]")));
+
+    [Fact]
+    public async Task OfficialMapsAreVerifiedAndPromotedWithoutHidden()
+    {
+        var service = ServiceWith(
+            IssueJson(1, "verified"),
+            IssueJson(2, "verified", "promoted"),
+            IssueJson(3, "verified", "promoted", "hidden"));
+
+        var official = await service.GetOfficialAsync();
+
+        var map = Assert.Single(official);
+        Assert.Equal(2, map.SourceIssueNumber);
+        Assert.Equal("official", map.CatalogSource);
+    }
+
+    [Fact]
+    public async Task CommunityMapsAreVerifiedWithoutPromotedOrHidden()
+    {
+        var service = ServiceWith(
+            IssueJson(1, "verified"),
+            IssueJson(2, "verified", "promoted"),
+            IssueJson(3, "verified", "hidden"));
+
+        var community = await service.GetVerifiedAsync();
+
+        var map = Assert.Single(community);
+        Assert.Equal(1, map.SourceIssueNumber);
+        Assert.Equal("community", map.CatalogSource);
     }
 
     private sealed class StubHandler(Func<HttpRequestMessage, string> response) : HttpMessageHandler

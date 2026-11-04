@@ -10,9 +10,9 @@ public sealed class MapCatalogCache
     private DateTime lastRefresh = DateTime.MinValue;
     private readonly TimeSpan refreshInterval = TimeSpan.FromMinutes(10);
 
-    public MapCatalogCache()
+    public MapCatalogCache(string fileName = "community_maps_cache.json")
     {
-        path = Path.Combine(Globals.GetDataPath(), "community_maps_cache.json");
+        path = Path.Combine(Globals.GetDataPath(), fileName);
     }
 
     public bool CanRefresh => DateTime.UtcNow - lastRefresh >= refreshInterval;
