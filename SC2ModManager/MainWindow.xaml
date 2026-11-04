@@ -2542,12 +2542,6 @@ Click="DownloadFiltersToggle_Click"/>
                                          <DataTemplate><TextBlock Text="{Binding MapName}" TextWrapping="Wrap"/></DataTemplate>
                                      </ListBox.ItemTemplate>
                                  </ListBox>
-                                 <TextBlock Text="Pending (unverified)" Foreground="#D6A64A" FontWeight="SemiBold"/>
-                                 <ListBox ItemsSource="{Binding PendingCommunityMaps}" SelectedItem="{Binding SelectedCommunityMap}" Height="90" Margin="0,2,0,6">
-                                     <ListBox.ItemTemplate>
-                                         <DataTemplate><TextBlock Text="{Binding MapName}" TextWrapping="Wrap"/></DataTemplate>
-                                     </ListBox.ItemTemplate>
-                                 </ListBox>
                                  <Button Content="Download selected community map" Click="DownloadCommunityMap_Click"/>
                             </StackPanel>
                         </ScrollViewer>

@@ -1679,10 +1679,9 @@ namespace SC2ModManager.ViewModels
             try
             {
                 var verified = await communityMapRepository.GetVerifiedAsync();
-                var pending = await communityMapRepository.GetPendingAsync();
-                SetCommunityMaps(verified.Concat(pending).ToList());
-                await communityMapCache.SaveAsync(verified.Concat(pending));
-                CommunityMapsStatus = $"Community maps updated: {verified.Count} verified, {pending.Count} pending";
+                SetCommunityMaps(verified);
+                await communityMapCache.SaveAsync(verified);
+                CommunityMapsStatus = $"Verified community maps updated: {verified.Count}";
             }
             catch (Exception ex)
             {
@@ -1696,7 +1695,7 @@ namespace SC2ModManager.ViewModels
         private void SetCommunityMaps(IEnumerable<Map> maps)
         {
             VerifiedCommunityMaps = new ObservableCollection<Map>(maps.Where(m => string.Equals(m.ModerationStatus, "verified", StringComparison.OrdinalIgnoreCase)));
-            PendingCommunityMaps = new ObservableCollection<Map>(maps.Where(m => string.Equals(m.ModerationStatus, "pending", StringComparison.OrdinalIgnoreCase)));
+            PendingCommunityMaps = new ObservableCollection<Map>();
             OnPropertyChanged(nameof(VerifiedCommunityMaps));
             OnPropertyChanged(nameof(PendingCommunityMaps));
         }
@@ -1704,6 +1703,8 @@ namespace SC2ModManager.ViewModels
         public async Task DownloadCommunityMapAsync(Map map)
         {
             if (map == null) return;
+            if (!string.Equals(map.ModerationStatus, "verified", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Only moderator-verified community maps can be downloaded.");
             // Migrate entries written by the first community-map build, which used
             // community-{issue}.scd instead of the actual filename from the URL.
             if (string.Equals(map.CatalogSource, "community", StringComparison.OrdinalIgnoreCase) &&
