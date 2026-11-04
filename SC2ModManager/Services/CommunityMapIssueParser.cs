@@ -14,7 +14,7 @@ public static class CommunityMapIssueParser
     {
         map = null;
         if (string.IsNullOrWhiteSpace(body)) return false;
-        if (!body.Contains("<!-- sc2-community-map-form:v1 -->", StringComparison.Ordinal)) return false;
+        if (!body.Contains("Submission format: `SC2CommunityMaps/v1`", StringComparison.Ordinal)) return false;
 
         var fields = FieldRegex.Matches(body)
             .ToDictionary(m => m.Groups["name"].Value.Trim(), m => Clean(m.Groups["value"].Value), StringComparer.OrdinalIgnoreCase);

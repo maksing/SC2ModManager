@@ -10,8 +10,11 @@ public static class MapIntegrityService
     {
         if (string.IsNullOrWhiteSpace(map.Sha256)) return;
 
-        await using var stream = File.OpenRead(path);
-        var hash = await SHA256.HashDataAsync(stream);
+        byte[] hash;
+        await using (var stream = File.OpenRead(path))
+        {
+            hash = await SHA256.HashDataAsync(stream);
+        }
         var actual = Convert.ToHexString(hash);
         if (actual.Equals(map.Sha256.Trim(), StringComparison.OrdinalIgnoreCase)) return;
 

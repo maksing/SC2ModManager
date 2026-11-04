@@ -6,7 +6,7 @@ namespace SC2ModManager.Tests;
 public class CommunityMapIssueParserTests
 {
     private const string Body = """
-<!-- sc2-community-map-form:v1 -->
+Submission format: `SC2CommunityMaps/v1`
 
 ### Map name
 
@@ -67,6 +67,6 @@ abc123
     [Fact]
     public void RejectsBlankIssueWithoutFormMarker()
     {
-        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("<!-- sc2-community-map-form:v1 -->\n\n", ""), 1, "", "verified", out _));
+        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("Submission format: `SC2CommunityMaps/v1`\n\n", ""), 1, "", "verified", out _));
     }
 }

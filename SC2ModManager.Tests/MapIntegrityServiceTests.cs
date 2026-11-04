@@ -1,5 +1,7 @@
 using SC2ModManager.Models;
 using SC2ModManager.Services;
+using System.Threading.Tasks;
+using System.IO;
 using Xunit;
 
 namespace SC2ModManager.Tests;

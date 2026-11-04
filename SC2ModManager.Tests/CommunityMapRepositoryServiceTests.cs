@@ -16,6 +16,7 @@ public class CommunityMapRepositoryServiceTests
     {
         var handler = new StubHandler(_ => """
         [
+          {"number":99,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/issues/99","body":"Submission format: `SC2CommunityMaps/v1`\n\n### Map name\n\nMap One\n\n### Author\n\nA\n\n### Download URL\n\nhttps://example.com/map.scd\n\n### File type\n\n.scd\n\n### Map or game version\n\n1\n\n### Description\n\nTest\n\n### SHA-256 (generated automatically)\n\n0000000000000000000000000000000000000000000000000000000000000000"},
           {"number":1,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/issues/1","body":"### Map name\n\nMap One\n\n### Author\n\nA\n\n### Download URL\n\nhttps://example.com/map.scd\n\n### File type\n\n.scd\n\n### Map or game version\n\n1\n\n### Description\n\nTest"},
           {"number":2,"html_url":"https://github.com/maksing/SupCom2-Community-Maps/pull/2","body":"ignored","pull_request":{}}
         ]
@@ -25,7 +26,7 @@ public class CommunityMapRepositoryServiceTests
         var maps = await service.GetVerifiedAsync();
 
         var map = Assert.Single(maps);
-        Assert.Equal(1, map.SourceIssueNumber);
+        Assert.Equal(99, map.SourceIssueNumber);
     }
 
     private sealed class StubHandler(Func<HttpRequestMessage, string> response) : HttpMessageHandler
