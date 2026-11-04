@@ -466,18 +466,18 @@ namespace SC2ModManager
 
         private async void GoToDownloadCommunityMaps(object sender, RoutedEventArgs e)
         {
-            ShowView("DownloadCommunityMaps");
-            if (_currentView != "DownloadCommunityMaps") return;
-            CommunityMapsLoadingText.Visibility = Visibility.Visible;
-            CommunityMapsList.Visibility = Visibility.Collapsed;
+            ShowView("DownloadMaps");
+            if (_currentView != "DownloadMaps") return;
+            DownloadMapsList.Visibility = Visibility.Collapsed;
+            DownloadMapsLoadingText.Visibility = Visibility.Visible;
             try
             {
                 await vm.LoadCommunityMapsAsync(force: true);
             }
             finally
             {
-                CommunityMapsLoadingText.Visibility = Visibility.Collapsed;
-                CommunityMapsList.Visibility = Visibility.Visible;
+                DownloadMapsLoadingText.Visibility = Visibility.Collapsed;
+                DownloadMapsList.Visibility = Visibility.Visible;
             }
         }
 

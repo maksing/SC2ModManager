@@ -114,6 +114,13 @@ namespace SC2ModManager.ViewModels
         // ================= DOWNLOADABLE MOD LISTS =================
 
         public ObservableCollection<Map> DownloadableMaps { get; set; } = new();
+        private bool isCommunityMapCatalog;
+        public bool IsCommunityMapCatalog
+        {
+            get => isCommunityMapCatalog;
+            private set { isCommunityMapCatalog = value; OnPropertyChanged(nameof(IsCommunityMapCatalog)); OnPropertyChanged(nameof(DownloadMapsSectionTitle)); }
+        }
+        public string DownloadMapsSectionTitle => IsCommunityMapCatalog ? "Community Maps" : "Official Maps";
         public ObservableCollection<Map> VerifiedCommunityMaps { get; set; } = new();
         public ObservableCollection<Map> PendingCommunityMaps { get; set; } = new();
         public string CommunityMapsStatus { get; private set; } = string.Empty;
@@ -1647,6 +1654,7 @@ namespace SC2ModManager.ViewModels
 
         public async Task LoadDownloadableMapsAsync()
         {
+            IsCommunityMapCatalog = false;
             try
             {
                 var all = await storageService.GetDownloadableMapsAsync();
@@ -1670,10 +1678,12 @@ namespace SC2ModManager.ViewModels
 
         public async Task LoadCommunityMapsAsync(bool force = false)
         {
+            IsCommunityMapCatalog = true;
             if (!force && !communityMapCache.CanRefresh)
             {
                 var cached = await communityMapCache.LoadAsync();
                 SetCommunityMaps(cached);
+                ApplyCommunityCatalogToDownloadList();
                 return;
             }
 
@@ -1690,7 +1700,19 @@ namespace SC2ModManager.ViewModels
                 SetCommunityMaps(cached);
                 CommunityMapsStatus = cached.Count == 0 ? $"Community maps unavailable: {ex.Message}" : "Community maps loaded from cache";
             }
+            ApplyCommunityCatalogToDownloadList();
             OnPropertyChanged(nameof(CommunityMapsStatus));
+        }
+
+        private void ApplyCommunityCatalogToDownloadList()
+        {
+            var installed = storageService.GetInstalledMaps();
+            var installedNames = installed.Select(m => m.FileName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (var map in VerifiedCommunityMaps)
+                map.IsDownloaded = installedNames.Contains(map.FileName);
+            DownloadableMaps = new ObservableCollection<Map>(VerifiedCommunityMaps);
+            OnPropertyChanged(nameof(DownloadableMaps));
+            RefreshDownloadMapFilters();
         }
 
         private void SetCommunityMaps(IEnumerable<Map> maps)
