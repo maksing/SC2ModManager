@@ -1704,6 +1704,11 @@ namespace SC2ModManager.ViewModels
         public async Task DownloadCommunityMapAsync(Map map)
         {
             if (map == null) return;
+            if (File.Exists(map.ModFilePath))
+            {
+                map.IsDownloaded = true;
+                return;
+            }
             await storageService.DownloadMapAsync(map);
             map.IsDownloaded = true;
         }

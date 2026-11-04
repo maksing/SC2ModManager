@@ -40,6 +40,7 @@ abc123
     {
         Assert.True(CommunityMapIssueParser.TryParse(Body, 42, "https://github.com/maksing/SupCom2-Community-Maps/issues/42", "verified", out var map));
         Assert.Equal("Desert Arena", map.MapName);
+        Assert.Equal("desert-arena.zip", map.FileName);
         Assert.Equal("community", map.CatalogSource);
         Assert.Equal(42, map.SourceIssueNumber);
         Assert.Equal("verified", map.ModerationStatus);

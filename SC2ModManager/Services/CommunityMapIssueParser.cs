@@ -1,4 +1,5 @@
 using SC2ModManager.Models;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace SC2ModManager.Services;
@@ -33,7 +34,7 @@ public static class CommunityMapIssueParser
         map = new Map
         {
             ID = $"community-{issueNumber}",
-            FileName = $"community-{issueNumber}{fileType}",
+            FileName = Path.GetFileName(uri.AbsolutePath),
             MapName = name,
             Author = author,
             DownloadURL = url,
@@ -46,6 +47,7 @@ public static class CommunityMapIssueParser
             Sha256 = sha256 ?? string.Empty,
             LastUpdated = DateTime.UtcNow.ToString("O")
         };
+        if (string.IsNullOrWhiteSpace(map.FileName) || !map.FileName.EndsWith(fileType, StringComparison.OrdinalIgnoreCase)) return false;
         return true;
     }
 
