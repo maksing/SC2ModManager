@@ -1,4 +1,5 @@
 using SC2ModManager.Models;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace SC2ModManager.Services;
