@@ -247,6 +247,7 @@ namespace SC2ModManager
             ScanGamedataView.Visibility = Visibility.Collapsed;
             DownloadModsView.Visibility = Visibility.Collapsed;
             DownloadMapsView.Visibility = Visibility.Collapsed;
+            DownloadCommunityMapsView.Visibility = Visibility.Collapsed;
             DownloadGenericModsView.Visibility = Visibility.Collapsed;
             ManualImportView.Visibility = Visibility.Collapsed;
             FileLocationsView.Visibility = Visibility.Collapsed;
@@ -271,6 +272,7 @@ namespace SC2ModManager
                 case "ScanGamedata": ScanGamedataView.Visibility = Visibility.Visible; break;
                 case "DownloadMods": DownloadModsView.Visibility = Visibility.Visible; break;
                 case "DownloadMaps": DownloadMapsView.Visibility = Visibility.Visible; break;
+                case "DownloadCommunityMaps": DownloadCommunityMapsView.Visibility = Visibility.Visible; break;
                 case "DownloadGenericMods": DownloadGenericModsView.Visibility = Visibility.Visible; break;
                 case "ManualImport": ManualImportView.Visibility = Visibility.Visible; break;
                 case "FileLocations": FileLocationsView.Visibility = Visibility.Visible; break;
@@ -454,12 +456,28 @@ namespace SC2ModManager
             try
             {
                 await vm.LoadDownloadableMapsAsync();
-                await vm.LoadCommunityMapsAsync();
             }
             finally
             {
                 DownloadMapsLoadingText.Visibility = Visibility.Collapsed;
                 DownloadMapsList.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void GoToDownloadCommunityMaps(object sender, RoutedEventArgs e)
+        {
+            ShowView("DownloadCommunityMaps");
+            if (_currentView != "DownloadCommunityMaps") return;
+            CommunityMapsLoadingText.Visibility = Visibility.Visible;
+            CommunityMapsList.Visibility = Visibility.Collapsed;
+            try
+            {
+                await vm.LoadCommunityMapsAsync(force: true);
+            }
+            finally
+            {
+                CommunityMapsLoadingText.Visibility = Visibility.Collapsed;
+                CommunityMapsList.Visibility = Visibility.Visible;
             }
         }
 

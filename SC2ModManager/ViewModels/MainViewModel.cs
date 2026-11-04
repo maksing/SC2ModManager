@@ -35,6 +35,7 @@ namespace SC2ModManager.ViewModels
         InstalledGenericMods,
         DownloadMods,
         DownloadMaps,
+        DownloadCommunityMaps,
         DownloadGenericMods,
         ManualImport
     }
