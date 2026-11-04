@@ -6,6 +6,8 @@ namespace SC2ModManager.Tests;
 public class CommunityMapIssueParserTests
 {
     private const string Body = """
+<!-- sc2-community-map-form:v1 -->
+
 ### Map name
 
 Desert Arena
@@ -60,5 +62,11 @@ abc123
     public void RejectsMissingRequiredField()
     {
         Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("### Description\n\n2v2 community map", ""), 1, "", "pending", out _));
+    }
+
+    [Fact]
+    public void RejectsBlankIssueWithoutFormMarker()
+    {
+        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("<!-- sc2-community-map-form:v1 -->\n\n", ""), 1, "", "verified", out _));
     }
 }
