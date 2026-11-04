@@ -31,6 +31,13 @@ public static class CommunityMapIssueParser
 
         var version = Optional(fields, "Map or mappack version", string.Empty);
         if (!Regex.IsMatch(version, @"^[0-9]+\.[0-9]+\.[0-9]+$")) return false;
+        var scenarioValue = Optional(fields, "Scenario File Path", string.Empty);
+        var scenarioPaths = Regex.Matches(scenarioValue, @"(?:/)?[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*\.lua", RegexOptions.IgnoreCase)
+            .Select(match => match.Value)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (scenarioPaths.Count == 0) return false;
+        var scenarioFilePath = string.Join(Environment.NewLine, scenarioPaths);
         var description = Optional(fields, "Description", "No description available.");
         var players = Optional(fields, "Players", "Unknown");
         var style = Optional(fields, "Style", "Unknown");
@@ -53,6 +60,7 @@ public static class CommunityMapIssueParser
             DownloadURL = url,
             Description = description,
             Version = version,
+            ScenarioFilePath = scenarioFilePath,
             PlayerCount = players,
             MapTeamStyle = style,
             Size = size,

@@ -67,6 +67,9 @@ namespace SC2ModManager.Models
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        [JsonPropertyName("scenarioFilePath")]
+        public string ScenarioFilePath { get; set; }
+
         [JsonPropertyName("lastUpdatedDate")]
         public string LastUpdated { get; set; }
 
@@ -274,6 +277,7 @@ namespace SC2ModManager.Models
             this.Author = "Unknown";
             this.Type = "Unknown";
             this.Version = "Unknown";
+            this.ScenarioFilePath = string.Empty;
             this.LastUpdated = "Unknown";
             this.DownloadURL = string.Empty;
             this.CatalogSource = "official";
@@ -315,6 +319,7 @@ namespace SC2ModManager.Models
             this.Author = "Unknown";
             this.Type = "Unknown";
             this.Version = "Unknown";
+            this.ScenarioFilePath = string.Empty;
             this.LastUpdated = "Unknown";
             this.DownloadURL = string.Empty;
             this.CatalogSource = "official";

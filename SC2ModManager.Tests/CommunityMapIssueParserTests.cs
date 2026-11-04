@@ -30,6 +30,10 @@ https://example.com/desert-arena.zip
 
 1.0.0
 
+### Scenario File Path
+
+/maps/desert_arena/desert_arena_scenario.lua
+
 ### Description
 
 2v2 community map
@@ -49,6 +53,7 @@ abc123
         Assert.Equal(42, map.SourceIssueNumber);
         Assert.Equal("verified", map.ModerationStatus);
         Assert.Equal("abc123", map.Sha256);
+        Assert.Equal("/maps/desert_arena/desert_arena_scenario.lua", map.ScenarioFilePath);
     }
 
     [Theory]
@@ -67,6 +72,22 @@ abc123
     public void RejectsInvalidVersion(string version)
     {
         var body = Body.Replace("1.0.0", version);
+        Assert.False(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out _));
+    }
+
+    [Fact]
+    public void ParsesMultipleScenarioPaths()
+    {
+        var body = Body.Replace("/maps/desert_arena/desert_arena_scenario.lua", "/maps/desert_arena/desert_arena_scenario.lua\n/maps/desert_arena/desert_arena_preview.lua");
+        Assert.True(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out var map));
+        Assert.Contains("desert_arena_scenario.lua", map.ScenarioFilePath);
+        Assert.Contains("desert_arena_preview.lua", map.ScenarioFilePath);
+    }
+
+    [Fact]
+    public void RejectsScenarioPathWithoutLuaExtension()
+    {
+        var body = Body.Replace("/maps/desert_arena/desert_arena_scenario.lua", "/maps/desert_arena/desert_arena_scenario.txt");
         Assert.False(CommunityMapIssueParser.TryParse(body, 1, "", "pending", out _));
     }
 
