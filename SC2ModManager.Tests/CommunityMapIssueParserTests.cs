@@ -63,7 +63,25 @@ abc123
     [Fact]
     public void RejectsMissingRequiredField()
     {
-        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("### Description\n\n2v2 community map", ""), 1, "", "pending", out _));
+        Assert.False(CommunityMapIssueParser.TryParse(Body.Replace("### Author\n\nMaksing", ""), 1, "", "pending", out _));
+    }
+
+    [Fact]
+    public void OptionalOfficialMetadataAndImageAreParsed()
+    {
+        var body = Body
+            .Replace("### Map or game version\n\n1.0", "### Map or game version\n\n_No response_")
+            .Replace("### Description\n\n2v2 community map", "### Description\n\n_No response_\n\n### Players\n\n2 Players\n\n### Style\n\nTeam\n\n### Size\n\nLarge\n\n### Map image URL\n\nhttps://github.com/user-attachments/assets/map-preview")
+            .Replace("### SHA-256 (generated automatically)", "### Tags\n\n2 Players, Team\n\n### SHA-256 (generated automatically)");
+
+        Assert.True(CommunityMapIssueParser.TryParse(body, 7, "", "verified", out var map));
+        Assert.Equal("Unknown", map.Version);
+        Assert.Equal("No description available.", map.Description);
+        Assert.Equal("2 Players", map.PlayerCount);
+        Assert.Equal("Team", map.MapTeamStyle);
+        Assert.Equal("Large", map.Size);
+        Assert.Equal("https://github.com/user-attachments/assets/map-preview", map.MapPictureUrl);
+        Assert.Contains("Team", map.Tags);
     }
 
     [Fact]

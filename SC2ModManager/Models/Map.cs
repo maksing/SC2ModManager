@@ -108,6 +108,11 @@ namespace SC2ModManager.Models
         [JsonPropertyName("mapPictureFileName")]
         public string MapPictureFileName { get; set; }
 
+        // Community submissions may provide a direct HTTPS preview URL. Official
+        // maps continue to use mapPictureFileName and the existing image base URL.
+        [JsonPropertyName("mapPictureUrl")]
+        public string MapPictureUrlOverride { get; set; }
+
         [JsonPropertyName("tags")]
         public List<string> Tags { get; set; }
 
@@ -115,9 +120,11 @@ namespace SC2ModManager.Models
 
         [JsonIgnore]
         public string MapPictureUrl =>
-        string.IsNullOrEmpty(MapPictureFileName)
-            ? null
-            : Globals.MapImagesBaseUrl + MapPictureFileName;
+        !string.IsNullOrWhiteSpace(MapPictureUrlOverride)
+            ? MapPictureUrlOverride
+            : string.IsNullOrEmpty(MapPictureFileName)
+                ? null
+                : Globals.MapImagesBaseUrl + MapPictureFileName;
 
         /// <summary>
         ///     MD5 hash of the mod file. Used to match against lobby tags (mod_<hash>).
@@ -279,6 +286,7 @@ namespace SC2ModManager.Models
             this.MapName = "Unknown";
             this.Description = "No description available.";
             this.MapPictureFileName = string.Empty;
+            this.MapPictureUrlOverride = string.Empty;
             this.Tags = new List<string>();
             this.IsEnabled = false;
             this.IsDownloaded = true;
@@ -319,6 +327,7 @@ namespace SC2ModManager.Models
             this.MapName = "Unknown";
             this.Description = "No description available.";
             this.MapPictureFileName = string.Empty;
+            this.MapPictureUrlOverride = string.Empty;
             this.Tags = new List<string>();
             this.IsEnabled = false;
             this.IsDownloaded = true;
