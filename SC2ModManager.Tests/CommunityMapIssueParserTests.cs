@@ -71,7 +71,7 @@ abc123
     {
         var body = Body
             .Replace("### Map or game version\n\n1.0", "### Map or game version\n\n_No response_")
-            .Replace("### Description\n\n2v2 community map", "### Description\n\n_No response_\n\n### Players\n\n2 Players\n\n### Style\n\nTeam\n\n### Size\n\nLarge\n\n### Map image URL\n\nhttps://github.com/user-attachments/assets/map-preview")
+            .Replace("### Description\n\n2v2 community map", "### Description\n\n_No response_\n\n### Players\n\n2 Players\n\n### Style\n\nTeam\n\n### Size\n\nLarge\n\n### Map image\n\n![Map preview](https://github.com/user-attachments/assets/map-preview)")
             .Replace("### SHA-256 (generated automatically)", "### Tags\n\n2 Players, Team\n\n### SHA-256 (generated automatically)");
 
         Assert.True(CommunityMapIssueParser.TryParse(body, 7, "", "verified", out var map));

@@ -34,11 +34,7 @@ public static class CommunityMapIssueParser
         var players = Optional(fields, "Players", "Unknown");
         var style = Optional(fields, "Style", "Unknown");
         var size = Optional(fields, "Size", "Unknown");
-        var imageUrl = Optional(fields, "Map image URL", string.Empty);
-        if (!string.IsNullOrWhiteSpace(imageUrl) &&
-            (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri) ||
-             !string.Equals(imageUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
-            imageUrl = string.Empty;
+        var imageUrl = ExtractHttpsUrl(Optional(fields, "Map image", string.Empty));
 
         var tags = Optional(fields, "Tags", string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -76,6 +72,21 @@ public static class CommunityMapIssueParser
         fields.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value) && !value.Equals("_No response_", StringComparison.OrdinalIgnoreCase)
             ? value
             : fallback;
+
+    private static string ExtractHttpsUrl(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+
+        var markdown = Regex.Match(value, @"!\[[^\]]*\]\((https://[^)\s]+)", RegexOptions.IgnoreCase);
+        var candidate = markdown.Success
+            ? markdown.Groups[1].Value
+            : Regex.Match(value, @"https://[^\s)]+", RegexOptions.IgnoreCase).Value;
+
+        return Uri.TryCreate(candidate, UriKind.Absolute, out var uri) &&
+               string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            ? uri.AbsoluteUri
+            : string.Empty;
+    }
 
     private static string Clean(string value) => Regex.Replace(value ?? string.Empty, @"\s+", " ").Trim();
 }
