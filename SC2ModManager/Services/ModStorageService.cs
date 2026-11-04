@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Security.Cryptography;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -271,7 +270,7 @@ namespace SC2ModManager.Services
                     await DownloadToFileAsync(url, tempZip);
                     var extracted = await ExtractScdFromZipAsync(tempZip, mapsDisabledPath);
                     EnsureZipHadExpectedFile(extracted, mapsDisabledPath, map.FileName);
-                    await ValidateSha256Async(map, Path.Combine(mapsDisabledPath, map.FileName));
+                    await MapIntegrityService.ValidateSha256Async(map, Path.Combine(mapsDisabledPath, map.FileName));
                 }
                 finally
                 {
@@ -283,7 +282,7 @@ namespace SC2ModManager.Services
             {
                 string path = Path.Combine(mapsDisabledPath, map.FileName);
                 await DownloadToFileAsync(url, path);
-                await ValidateSha256Async(map, path);
+                await MapIntegrityService.ValidateSha256Async(map, path);
             }
             else
             {
@@ -291,18 +290,6 @@ namespace SC2ModManager.Services
             }
         }
 
-        private static async Task ValidateSha256Async(Map map, string path)
-        {
-            if (string.IsNullOrWhiteSpace(map.Sha256)) return;
-            await using var stream = File.OpenRead(path);
-            var hash = await SHA256.HashDataAsync(stream);
-            var actual = Convert.ToHexString(hash);
-            if (!actual.Equals(map.Sha256.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
-                File.Delete(path);
-                throw new IOException("SHA-256 checksum does not match the submitted map.");
-            }
-        }
 
         /// <summary>
         ///     Copies a .scd file from an external path into the Disabled folder.
