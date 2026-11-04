@@ -454,6 +454,7 @@ namespace SC2ModManager
             try
             {
                 await vm.LoadDownloadableMapsAsync();
+                await vm.LoadCommunityMapsAsync();
             }
             finally
             {
@@ -2090,6 +2091,24 @@ namespace SC2ModManager
             finally
             {
                 if (button != null) button.IsEnabled = true;
+            }
+        }
+
+        private async void DownloadCommunityMap_Click(object sender, RoutedEventArgs e)
+        {
+            if (vm.SelectedCommunityMap == null)
+            {
+                MessageBox.Show("Select a community map first.");
+                return;
+            }
+            try
+            {
+                await vm.DownloadCommunityMapAsync(vm.SelectedCommunityMap);
+                MessageBox.Show("Community map downloaded.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Community map download failed: {ex.Message}");
             }
         }
 

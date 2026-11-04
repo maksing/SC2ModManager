@@ -49,6 +49,8 @@ namespace SC2ModManager.ViewModels
 
         private readonly ModRepositoryService repositoryService = new();
         private readonly ModStorageService storageService = new();
+        private readonly CommunityMapRepositoryService communityMapRepository = new();
+        private readonly MapCatalogCache communityMapCache = new();
         private readonly GamedataService gamedataService = new();
 
         // ================= HOTKEY EDITOR =================
@@ -111,6 +113,9 @@ namespace SC2ModManager.ViewModels
         // ================= DOWNLOADABLE MOD LISTS =================
 
         public ObservableCollection<Map> DownloadableMaps { get; set; } = new();
+        public ObservableCollection<Map> VerifiedCommunityMaps { get; set; } = new();
+        public ObservableCollection<Map> PendingCommunityMaps { get; set; } = new();
+        public string CommunityMapsStatus { get; private set; } = string.Empty;
         public ObservableCollection<GenericGamedataMod> DownloadableGenericMods { get; set; } = new();
 
 
@@ -139,6 +144,13 @@ namespace SC2ModManager.ViewModels
         {
             get => selectedDownloadMap;
             set { selectedDownloadMap = value; OnPropertyChanged(nameof(SelectedDownloadMap)); }
+        }
+
+        private Map selectedCommunityMap;
+        public Map SelectedCommunityMap
+        {
+            get => selectedCommunityMap;
+            set { selectedCommunityMap = value; OnPropertyChanged(nameof(SelectedCommunityMap)); }
         }
 
         // ================= PRESETS =================
@@ -1653,6 +1665,47 @@ namespace SC2ModManager.ViewModels
             {
                 MessageBox.Show($"Failed to load downloadable maps: {ex.Message}");
             }
+        }
+
+        public async Task LoadCommunityMapsAsync(bool force = false)
+        {
+            if (!force && !communityMapCache.CanRefresh)
+            {
+                var cached = await communityMapCache.LoadAsync();
+                SetCommunityMaps(cached);
+                return;
+            }
+
+            try
+            {
+                var verified = await communityMapRepository.GetVerifiedAsync();
+                var pending = await communityMapRepository.GetPendingAsync();
+                SetCommunityMaps(verified.Concat(pending).ToList());
+                await communityMapCache.SaveAsync(verified.Concat(pending));
+                CommunityMapsStatus = $"Community maps updated: {verified.Count} verified, {pending.Count} pending";
+            }
+            catch (Exception ex)
+            {
+                var cached = await communityMapCache.LoadAsync();
+                SetCommunityMaps(cached);
+                CommunityMapsStatus = cached.Count == 0 ? $"Community maps unavailable: {ex.Message}" : "Community maps loaded from cache";
+            }
+            OnPropertyChanged(nameof(CommunityMapsStatus));
+        }
+
+        private void SetCommunityMaps(IEnumerable<Map> maps)
+        {
+            VerifiedCommunityMaps = new ObservableCollection<Map>(maps.Where(m => string.Equals(m.ModerationStatus, "verified", StringComparison.OrdinalIgnoreCase)));
+            PendingCommunityMaps = new ObservableCollection<Map>(maps.Where(m => string.Equals(m.ModerationStatus, "pending", StringComparison.OrdinalIgnoreCase)));
+            OnPropertyChanged(nameof(VerifiedCommunityMaps));
+            OnPropertyChanged(nameof(PendingCommunityMaps));
+        }
+
+        public async Task DownloadCommunityMapAsync(Map map)
+        {
+            if (map == null) return;
+            await storageService.DownloadMapAsync(map);
+            map.IsDownloaded = true;
         }
 
         /// <summary>

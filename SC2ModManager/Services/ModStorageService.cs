@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -167,10 +168,14 @@ namespace SC2ModManager.Services
                     response.EnsureSuccessStatusCode();
 
                     using var stream = await response.Content.ReadAsStreamAsync();
+                    if (response.Content.Headers.ContentLength is > 512L * 1024 * 1024)
+                        throw new IOException("Download exceeds the 512 MB limit.");
                     using var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None);
 
                     await stream.CopyToAsync(fileStream);
                     await fileStream.FlushAsync();
+                    if (fileStream.Length > 512L * 1024 * 1024)
+                        throw new IOException("Download exceeds the 512 MB limit.");
                 }
 
                 // The file stream is closed now, so the rename can happen
@@ -250,6 +255,14 @@ namespace SC2ModManager.Services
 
             string url = map.DownloadURL;
 
+            if (string.Equals(map.CatalogSource, "community", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+                    throw new Exception("Community maps require an HTTPS download URL.");
+                if (!url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && !url.EndsWith(".scd", StringComparison.OrdinalIgnoreCase))
+                    throw new Exception("Community maps must be .scd or .zip files.");
+            }
+
             if (url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 string tempZip = Path.Combine(Path.GetTempPath(), $"{map.ID}_download.zip");
@@ -258,6 +271,7 @@ namespace SC2ModManager.Services
                     await DownloadToFileAsync(url, tempZip);
                     var extracted = await ExtractScdFromZipAsync(tempZip, mapsDisabledPath);
                     EnsureZipHadExpectedFile(extracted, mapsDisabledPath, map.FileName);
+                    await ValidateSha256Async(map, Path.Combine(mapsDisabledPath, map.FileName));
                 }
                 finally
                 {
@@ -269,10 +283,24 @@ namespace SC2ModManager.Services
             {
                 string path = Path.Combine(mapsDisabledPath, map.FileName);
                 await DownloadToFileAsync(url, path);
+                await ValidateSha256Async(map, path);
             }
             else
             {
                 throw new Exception($"Unsupported download format for: {url}");
+            }
+        }
+
+        private static async Task ValidateSha256Async(Map map, string path)
+        {
+            if (string.IsNullOrWhiteSpace(map.Sha256)) return;
+            await using var stream = File.OpenRead(path);
+            var hash = await SHA256.HashDataAsync(stream);
+            var actual = Convert.ToHexString(hash);
+            if (!actual.Equals(map.Sha256.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(path);
+                throw new IOException("SHA-256 checksum does not match the submitted map.");
             }
         }
 

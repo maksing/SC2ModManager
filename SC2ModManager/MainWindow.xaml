@@ -2532,6 +2532,23 @@ Click="DownloadFiltersToggle_Click"/>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
+
+                                 <Separator Style="{StaticResource HRule}" Margin="0,14,0,8"/>
+                                 <TextBlock Text="Community Maps" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                 <TextBlock Text="{Binding CommunityMapsStatus}" FontSize="11" Foreground="#AAAAAA" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                 <TextBlock Text="Verified" Foreground="#66CC66" FontWeight="SemiBold"/>
+                                 <ListBox ItemsSource="{Binding VerifiedCommunityMaps}" SelectedItem="{Binding SelectedCommunityMap}" Height="110" Margin="0,2,0,6">
+                                     <ListBox.ItemTemplate>
+                                         <DataTemplate><TextBlock Text="{Binding MapName}" TextWrapping="Wrap"/></DataTemplate>
+                                     </ListBox.ItemTemplate>
+                                 </ListBox>
+                                 <TextBlock Text="Pending (unverified)" Foreground="#D6A64A" FontWeight="SemiBold"/>
+                                 <ListBox ItemsSource="{Binding PendingCommunityMaps}" SelectedItem="{Binding SelectedCommunityMap}" Height="90" Margin="0,2,0,6">
+                                     <ListBox.ItemTemplate>
+                                         <DataTemplate><TextBlock Text="{Binding MapName}" TextWrapping="Wrap"/></DataTemplate>
+                                     </ListBox.ItemTemplate>
+                                 </ListBox>
+                                 <Button Content="Download selected community map" Click="DownloadCommunityMap_Click"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Border>

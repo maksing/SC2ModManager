@@ -73,6 +73,21 @@ namespace SC2ModManager.Models
         [JsonPropertyName("downloadURL")]
         public string DownloadURL { get; set; }
 
+        [JsonPropertyName("catalogSource")]
+        public string CatalogSource { get; set; }
+
+        [JsonPropertyName("sourceIssueNumber")]
+        public int? SourceIssueNumber { get; set; }
+
+        [JsonPropertyName("sourceIssueUrl")]
+        public string SourceIssueUrl { get; set; }
+
+        [JsonPropertyName("moderationStatus")]
+        public string ModerationStatus { get; set; }
+
+        [JsonPropertyName("sha256")]
+        public string Sha256 { get; set; }
+
 
 
         [JsonPropertyName("playerCount")]
@@ -254,6 +269,10 @@ namespace SC2ModManager.Models
             this.Version = "Unknown";
             this.LastUpdated = "Unknown";
             this.DownloadURL = string.Empty;
+            this.CatalogSource = "official";
+            this.SourceIssueUrl = string.Empty;
+            this.ModerationStatus = string.Empty;
+            this.Sha256 = string.Empty;
             this.PlayerCount = "Unknown";
             this.MapTeamStyle = "Unknown";
             this.Size = "Unknown";
@@ -290,6 +309,10 @@ namespace SC2ModManager.Models
             this.Version = "Unknown";
             this.LastUpdated = "Unknown";
             this.DownloadURL = string.Empty;
+            this.CatalogSource = "official";
+            this.SourceIssueUrl = string.Empty;
+            this.ModerationStatus = string.Empty;
+            this.Sha256 = string.Empty;
             this.PlayerCount = "Unknown";
             this.MapTeamStyle = "Unknown";
             this.Size = "Unknown";
